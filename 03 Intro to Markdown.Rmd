@@ -1,0 +1,197 @@
+---
+title: "03 Intro to R Markdown"
+author: "Julian Oolman"
+output: 
+  html_document:
+    toc: yes
+    number_sections: true
+date: "2022-08-30"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Section 1
+***
+## This will be one.one
+
+### Not 1.1.2
+
+#### Fourth layers of sections is hidden by default
+
+
+
+
+# R Markdown Basics
+********************************************************************************
+Here are some fundamentals to writing in Markdown.
+
+## Writing Text
+********************************************************************************
+This is how to write text in R Markdown.
+Notice writing on the next line stays in the same paragraph.
+
+This is how you start a new paragraph.
+
+Wrap your words in \* to get *italics*.
+Using two \*s will produce **boldface**.
+
+There are other things that we can do too, like making lists:
+
+1. Item 1
+2. Item 2
+2. Item 3
+    b. Notice how we had to align in the Markdown code
+        - You can choose whether you use numbers or letters, but Markdown chooses the symbols for you :'(
+        
+This is how we type inline code like `R`'s base function `plot()`, which is not as pretty as `ggplot2`'s function `ggplot()`.
+
+## Manual Tables
+********************************************************************************
+
+| Region | GDP | Unemployment Rate |
+| --- | --- | --- |
+| Narnia | 10 | 5 |
+| Hogwarts | ? | -42 |
+
+| Region   | GDP | Unemployment Rate |
+| ---:     | :---: | :--- |
+| Narnia   | 10 | 5 |
+| Hogwarts | ? | -42 |
+
+## $\LaTeX$ Math Integration
+********************************************************************************
+
+To write math, we can use some *limited* $\LaTeX$ features. 
+Like if we wanted to show a regression formula inline: $y_i = \alpha + x_i\beta + \epsilon_i$. 
+Alternatively, if we have important math, we can make it stand out:
+
+$$
+2+2 = 2*2 = 2^2 \approx \pi
+$$
+Or, if we want to show off how smart we are, we can show the geometric series identity:
+$$
+\begin{align}
+    \sum_{n=0}^\infty ar^n & = a\times \left( \frac{1}{1-r} \right)\\
+    &= \frac{a}{1-r} \tag{1}\\
+    & \text{for } |r| < 1
+\end{align}
+$$
+
+
+## Links
+********************************************************************************
+If we want to link sections, we do this [Section 1].
+Or if we need to link a website, we do this while making sure to include the https:
+A really useful [resource](https:/www.bookdown.org/yihui/rmarkdown) for additional RMarkdown tips and tricks.
+
+## Include Images
+********************************************************************************
+This is how we include images in our markdown.
+
+![XKCD is the best!](linear_regression_2x.png)
+
+
+## Writing Code
+********************************************************************************
+
+Here is the basics to writing code chunks.
+
+```{r hello}
+print('hello world')
+```
+
+The first part of the curly braces tells you what language you are using and the name of the chunk.
+The options can be set up using a comma after the chunk name by setting them to `TRUE` or `FALSE`.
+Some major options, all of which have the default of `TRUE`, are:
+
+- `include` - Whether or not to be included in the document
+- `echo` - Display the code
+- `results` - Displays the output of the code
+- `messages` - Displays messages from the functions if they have them.
+
+
+Be careful when working inside of the .Rmd.
+
+```{r caution1}
+set.seed(474)
+df = data.frame(x = 1:5,
+                y = runif(5))
+```
+
+```{r caution2}
+df$y = df$y + 1
+df$z = c('a', 'new', 'column', 'of', 'strings')
+
+summary(df)
+```
+
+
+# An Example Assignment
+********************************************************************************
+We must do the following:
+
+1. **[10 Points]** load ggplot **and omit your code**
+2. **[6 points]** load in the `gapminder_2007.csv` **and omit your code**
+3. **[7 points]** produce a correlation matrix **and omit your code**
+4. **[$\pi$ points]** obtain the mean and standard deviation of the America's GDPc
+5. **[-45 points]** produce summary stats of life expectancy for countries with GDPc less than $10,000
+6. **[$\tau$ points]** Replicate the plot from last lecture without logs or labels
+
+
+## Load in ggplot2 and gapmind_2007
+********************************************************************************
+```{r preliminary, include = FALSE}
+library(ggplot2)
+
+gm = read.csv('C:/Users/johnj/Dropbox/Julian/Academia/UIUC/Semester 11 Fall 2022/ECON474/Data/gapminder_2007.csv')
+```
+
+Done, but I am not going to show you!
+
+## Produce Three Sets of Statistics
+********************************************************************************
+Here is a correlation matrix of GDP per capita, life expectancy, and population.
+```{r cor mat, echo = FALSE}
+cor(gm[, c('gdpPercap', 'lifeExp', 'pop')])
+```
+Here is the mean and standard deviation of the America's GDP per capita.
+```{r m sd americas, echo = FALSE}
+americas = gm[gm$continent == 'Americas', ]
+
+m = mean(americas$gdpPercap)
+m = round(m, 2)
+s = round(sd(gm[gm$continent == 'Americas', 'gdpPercap']), 2)
+
+print(paste0("Americas' mean: ", m))
+print(paste("Americas' standard deviation", s))
+```
+
+Notice the code chunk has multiple outputs and is therefore split in the knitted document.
+
+And finally here are the summary statistics of life expectancy for countries with lesss than $10,000 GDP per capita.
+
+```{r poor stats}
+summary(gm[gm$gdpPercap < 10000, 'lifeExp'])
+```
+
+
+## Plot Replication
+********************************************************************************
+Here is the plot we already made
+```{r plot}
+ggplot(data = gm, aes(x = gdpPercap, y = lifeExp, 
+                      color = continent, size = pop)) +
+  geom_point(alpha = 0.5) +
+  scale_size_continuous(guide = 'none') +
+  labs(x = 'GDP per Capita', y = 'Life Expectancy',
+       title = 'GDPc vs. Life Expectancy 2007')
+  # theme(text = element_text(size = 20)) + # comment out with Ctrl-Shift-C
+```
+
+
+
+
+
+
