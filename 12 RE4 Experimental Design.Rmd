@@ -189,6 +189,11 @@ To begin:
 2. `mutate()` a new variable called `incentive` using `ifelse()` or `case_when()` such that when `any == 1` it equals `"incentive"` and `"no incentive"` otherwise.
 
 ```{r thornton load}
+setwd("~/Desktop/data econ 474")
+df = read.csv("Thornton 2008 main sample.csv")
+
+df = df %>%
+  mutate(incentive = ifelse(any == '1', 'incentive', 'no incentive'))
 
 ```
 
@@ -213,6 +218,14 @@ Specifically,
 
 
 ```{r post effect size}
+fit = lm(data = df, got ~ incentive-1)
+summary(fit)
+b = coef(fit)
+b[1]
+sd = sd(df$any)
+eff_size = as.numeric((b[1] - b[2])/sd)
+eff_size
+
 
 ```
 
@@ -221,12 +234,22 @@ Using the appropriate function from the `pwr` function, determine the total samp
 
 
 ```{r post-result required size greater}
+pwr.t.test(d = eff_size,
+           sig.level = 0.05,
+           power = 0.8,
+           type = 'two.sample', # this is the default
+           alternative = 'greater')
 
 ```
 
 How and to what do the number of observations required change to when the alternative is specified as a two-sided test?
 
 ```{r post-result required size two-sided}
+pwr.t.test(d = eff_size,
+           sig.level = 0.05,
+           power = 0.8,
+           type = 'two.sample', # this is the default
+           alternative = 'two.sided')
 
 ```
 
@@ -248,5 +271,58 @@ To do set:
 
 
 ```{r min sample pre}
+
+pwr.t.test(d = 0.2,
+           type = 'two.sample',
+           alternative = 'two.sided',
+           sig.level = c(0.05),
+           power = c(0.8))
+
+pwr.t.test(d = 0.2,
+           type = 'two.sample',
+           alternative = 'two.sided',
+           sig.level = c(0.01),
+           power = c(0.8))
+
+pwr.t.test(d = 0.2,
+           type = 'two.sample',
+           alternative = 'two.sided',
+           sig.level = c(0.001),
+           power = c(0.8))
+
+pwr.t.test(d = 0.2,
+           type = 'two.sample',
+           alternative = 'two.sided',
+           sig.level = c(0.05),
+           power = c(0.9))
+
+pwr.t.test(d = 0.2,
+           type = 'two.sample',
+           alternative = 'two.sided',
+           sig.level = c(0.01),
+           power = c(0.9))
+
+pwr.t.test(d = 0.2,
+           type = 'two.sample',
+           alternative = 'two.sided',
+           sig.level = c(0.001),
+           power = c(0.9))
+pwr.t.test(d = 0.2,
+           type = 'two.sample',
+           alternative = 'two.sided',
+           sig.level = c(0.05),
+           power = c(0.99))
+
+pwr.t.test(d = 0.2,
+           type = 'two.sample',
+           alternative = 'two.sided',
+           sig.level = c(0.01),
+           power = c(0.99))
+
+pwr.t.test(d = 0.2,
+           type = 'two.sample',
+           alternative = 'two.sided',
+           sig.level = c(0.001),
+           power = c(0.99))
 
 ```
