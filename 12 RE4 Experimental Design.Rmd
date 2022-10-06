@@ -220,7 +220,7 @@ Specifically,
 ```{r post effect size}
 fit = lm(data = df, got ~ incentive-1)
 summary(fit)
-b = coef(fit)
+b = coef(fit) # null hypothesis that incentive coefficeint is different than 0 
 b[1]
 sd = sd(df$any)
 eff_size = as.numeric((b[1] - b[2])/sd)
@@ -272,57 +272,19 @@ To do set:
 
 ```{r min sample pre}
 
-pwr.t.test(d = 0.2,
-           type = 'two.sample',
-           alternative = 'two.sided',
-           sig.level = c(0.05),
-           power = c(0.8))
+grid = expand.grid(d = 0.2, 
+                   sig.level = c(0.05, 0.01, 0.001),
+                   power = c(0.8, 0.9, 0.99),
+                   n = NA)
 
-pwr.t.test(d = 0.2,
-           type = 'two.sample',
-           alternative = 'two.sided',
-           sig.level = c(0.01),
-           power = c(0.8))
+for(i in 1:nrow(grid)){
+  grid$n[i] = 2 * ceiling(
+    pwr.t.test(d = grid$d[i],
+               sig.level = grid$sig.level[i],
+               power = grid$power[i])$n)
+}
 
-pwr.t.test(d = 0.2,
-           type = 'two.sample',
-           alternative = 'two.sided',
-           sig.level = c(0.001),
-           power = c(0.8))
+grid %>% arrange(desc(n))
 
-pwr.t.test(d = 0.2,
-           type = 'two.sample',
-           alternative = 'two.sided',
-           sig.level = c(0.05),
-           power = c(0.9))
-
-pwr.t.test(d = 0.2,
-           type = 'two.sample',
-           alternative = 'two.sided',
-           sig.level = c(0.01),
-           power = c(0.9))
-
-pwr.t.test(d = 0.2,
-           type = 'two.sample',
-           alternative = 'two.sided',
-           sig.level = c(0.001),
-           power = c(0.9))
-pwr.t.test(d = 0.2,
-           type = 'two.sample',
-           alternative = 'two.sided',
-           sig.level = c(0.05),
-           power = c(0.99))
-
-pwr.t.test(d = 0.2,
-           type = 'two.sample',
-           alternative = 'two.sided',
-           sig.level = c(0.01),
-           power = c(0.99))
-
-pwr.t.test(d = 0.2,
-           type = 'two.sample',
-           alternative = 'two.sided',
-           sig.level = c(0.001),
-           power = c(0.99))
 
 ```
