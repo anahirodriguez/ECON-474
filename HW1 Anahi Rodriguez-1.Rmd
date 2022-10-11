@@ -1,0 +1,365 @@
+---
+title: "HW1 Randomized Experiments (100 points)"
+author: "Anahi Rodriguez"
+date: "Collaborated with ____________"
+output: 
+  html_document:
+    toc: yes
+    toc_float: true
+    number_sections: true
+    theme: cerulean
+    highlight: pygments
+---
+
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+<center>
+![](control_group.png)
+</center>
+
+# **[25 Points]** Thinking Causal
+********************************************************************************
+
+This section is based around Alcott (2015) "Site Selection Bias in Program Evaluation."
+
+Opower corporation (acquired by Oracle in 2016) was a software company that provided customer engagement materials for utility companies.
+In 2008-2013 Opower conducted an experiment to determine if knowledge about a household's neighbors' energy consumption would reduce energy consumption.
+Opower reach out to many utility companies, which which 111 local utility companies responded over the five years, to provide a two-page letter Home Energy Report with a Neighbor Comparison Module via mail.
+
+<center>
+![](home energy report.jpg)
+</center>
+
+## **[15 Points]** Experimental Research Questions
+********************************************************************************
+
+Suppose the United States Department of Energy hires you to evaluate the experiment. 
+We are going to go through a list of questions to determine the empirical design and to identify potential issues.
+
+1. **[6 Points]** What is the unit of observation, the outcome variable, and the treatment variable?
+
+The unit of observation is customer's household, the outcome variable is a customer's household energy consumption, and the treatment variable is knowledge of a neighbors' energy consumption.
+
+
+
+
+2. **[2 Points]** What are the potential outcomes?
+
+A household's energy consumption if they have knowledge of their neighbors' energy consumption and a household's energy consumption if they do not have knowledge of their neighbors' energy consumption that then leads them to change their level of consumtion.
+
+
+
+
+3. **[4 Points]** Looking at the example Home Energy Report image, list at least two causal channels by how the treatment could affect the outcomes.
+
+Having knowledge of neighbor's energy consumption can directly lead to a change in a household's level of energy consumption. Or instead, the month itself could prompt a household to check their energy consumption relative to neighbors' energy consumption.
+
+
+
+
+
+4. **[3 Points]** Provide one possible source of selection bias. Which way would this bias estimated treatment effects and why?
+
+It is possible that individuals in the treatment group were already more energy efficient to begin with. This would overestimate the effect of having knowledge of neighbors' energy consumption because the difference in treatment effect would include the difference that would have existed had neither group had knowledge of their neighbors' energy consumption.
+
+
+
+## **[10 Points]**Randomization
+********************************************************************************
+
+5. **[4 Points]** How would randomization solve the selection bias issue you identified in the previous question?
+
+Yes, randomization ensures that individuals are randomly assigned either the control or treatment group regardless of how energy efficient they are, leading to a roughly even split of both energy efficient and non-energy efficient individuals in each group.
+
+
+
+6. **[6 Points]** Provide one example for how internal validity may be violated and one example for how external validity may be violated, even under randomization of treated households at the participating utility companies.
+
+Internal validity could be violated ... External validity could be violated because perhaps the area that these utility companies provide energy for are significantly richer/poorer than the surrounding areas, leading them to already use more/less than other areas, irregardless of any knowledge of their neighbor's consumption levels.
+
+
+
+
+
+# **[60 Points]** Randomized Experiments
+********************************************************************************
+
+In this section we are working with data from Bertrand and Mullainathan (2004) "Are Emily and Greg More Employable Than Lakisha and Jamal? A Field Experiment on Labor Market Discrimination."
+The researchers sent 4,870 fictitious resumes out to employers in response to job adverts in Boston and Chicago in 2001. 
+They varied only the names of job applicants while leaving other relevant candidates’ attributes unchanged (i.e. candidates had similar qualifications).
+Some applicants had stereotypically white-sounding names such as Emily Walsh and Greg Baker, whereas other resumes contained stereotypically black-sounding names such as Lakisha Washington or Jamal Jones. 
+Hence, any difference in callback rates can solely be attributed to name manipulation.
+
+## **[10 Points]** DAG
+********************************************************************************
+
+**[6 Points]** Using a PowerPoint slide either saved as a `.png` or `.jpeg`, create a DAG for resume callbacks.
+Let:
+
+- $D=$ treatment: black-sounding name
+- $Y=$ outcome: callback
+
+Use and define in writing any other variables or groupings of related variables (e.g. $P=$ performance: {horsepower, torque, handling}) that are relevant to the experiment.
+Indicate their effect using arrows.
+Furthermore, indicate if they are observable or unobservable effects using either solid- or dashed-line arrows.
+
+*Hint: there are multiple correct answers.*
+
+![](HW1 DAG.png)
+
+
+**[4 Points]** List all of the pathways in the DAG you have created using $\rightarrow$ and $\leftarrow$ between the varaibles. 
+Indicate whether a path is **direct**, **mediated**, or a **backdoor**. 
+If you DAG has any *collider* variables, list them as well.
+
+
+D = black sounding name
+A = Abilities/skills
+U = unobservable factors
+Y = callback
+
+D $\rightarrow$ Y - direct
+A $\rightarrow$ Y - direct
+U $\rightarrow$ Y - backdoor
+U $\rightarrow$ A - backdoor
+U $\rightarrow$ A $\rightarrow$ Y - mediated
+
+
+
+## **[10 Points]** Potential Outcomes
+********************************************************************************
+
+Using the potential outcomes framework, describe the experiment:
+
+1. **[1 Point]** What is the unit of observation $i$? Individual's applying for jobs
+2. **[1 Point]** What is the treatment $D_i$? Having a black sounding name
+3. **[1 Point]** What are the outcomes $Y_i^j$? Getting a call back or not when having a black sounding name and getting a call back or not when having a name that is not black sounding
+4. **[1 Point]** What is the counterfactual? Whether or not an individual with a black sounding name would have received a call back had they not had a black sounding name. Or, whether or not an individual who does not have a black sounding name would have received a call back had they had a black sounding name.
+5. Simple differences in outcomes
+    a. **[2 Points]** Use $\LaTeX$ to write out the SDO decomposition equation in a `align` $\LaTeX$ environment to **ensure none of the equation is cutoff when knitting** this document.
+    
+$$
+\begin{align}
+E[Y_i^1 | D = 1] - E[Y_i^0 | D = 0] &= (E[Y^1] - E[Y^0]) \\
+&+ (E[Y^0|D = 1] - E[Y^0|D = 0]) \\
+&+ (1-\pi)[(E[Y^1|D = 1]) - (E[Y^0|D = 1])] - [(E[Y^1|D=0]) - (E[Y^0|D=0])]
+\end{align}
+$$
+    b. **[2 Points]** Without randomization, do you think the selection bias will be positive or negative?
+    
+  Negative, because it is the case that in a pre-treatment world, black individuals, who likely receive less callbacks from jobs than white individuals, are more likely to have black sounding names.
+    
+  c. **[2 Points]** Without randomization, do you think the heterogeneous treatment effects will be positive or negative? 
+  
+  Negative, because 
+
+
+
+
+
+
+
+## **[5 Points]** Cleaning the Data
+********************************************************************************
+
+1. **[1 Point]** Load the `tidyverse` package
+2. **[2 Points]** Load in the data as `resume`
+3. **[2 Points]** Create a dummy variable for female applications named `female` using the `sex` variable
+
+```{r cleaning}
+library(tidyverse)
+setwd("~/Desktop/data econ 474")
+resume = read.csv('resume.csv')
+
+resume = resume %>%
+  mutate('female' = ifelse(sex == 'f', 1, 0))
+```
+
+
+## **[15 Points]** Balance Table
+********************************************************************************
+
+1. **[10 Points]** Produce a balance table using the variables education (`education`), years of experience (`years`), military experience (`military`), computer skills (`computerskills`), special skills (`specialskills`), and gender (`female`). 
+
+
+
+*Hint:*
+
+- *you need the columns for treated average, control average, difference, and p-value*
+- *instead of using* `summarize(across(everything(), fn))`, *replace* `everything()` *with* `c(variable1, variable2, ...)`
+
+```{r}
+
+bal_tab = resume %>%
+  group_by(race) %>%
+  summarize(across(c(education, yearsexp, military, 
+             computerskills, specialskills, female), mean)) %>%
+  pivot_longer(!race, names_to = 'Variable',
+               values_to = 'D') %>%
+  pivot_wider(values_from = D,
+              names_from = race,
+              names_prefix = 'D_')  %>%
+  mutate(diff = D_b - D_w)
+bal_tab
+
+bal_tab$pvalue = NA
+
+for(v in names(resume)[names(resume) %in% c('education','yearsexp',
+                                            'military','computerskills',
+                                            'specialskills','female')]) {
+  bal_tab$pvalue[bal_tab$Variable == v] = t.test(resume[[v]] ~ resume[['race']])$p.value
+}
+
+bal_tab
+
+
+```
+
+2. **[5 Points]** Which of the variables (if any) are statistical different at the 95% confidence level? If any of the variables are significantly different, does the treatment group or control group have a higher average value? the p-value for the variable 'computerskills' is statistically significant at the 5% level and tells us that there does exist some difference in the level of computer skills that black and white individuals have. Black individuals have a higher average value for computer skills compared to white individuals.
+
+
+
+
+## **[20 Points]** Treatment Effects
+********************************************************************************
+
+
+### **[5 Points]** t-test
+********************************************************************************
+
+1. **[2 Points]** Use `t.test()` to determine if there is a statistically significant racial gap in callbacks. Print the test results.
+2. **[1 Point]** According to the group means, what is the treatment effect size from the t-test?  -0.03203285
+3. **[2 Points]** If there is a gap, which perceived race is more likely to be called back? 
+White individuals are more likely to be called back
+
+```{r t test}
+t.test(resume$call ~ resume$race)
+
+0.06447639  - 0.09650924 
+```
+
+
+
+
+
+### **[15 Points]** Regression
+********************************************************************************
+
+Using the `fixest` package
+
+1. **[4 Points]** Fit the following regressions with heteroskedastic robust standard errors
+    a. $Y$ on $D$
+    b. $Y$ on $D$ and $\textbf{X}$, where $\textbf{X}$ are the controls in the balance table
+    
+```{r regression}
+library(fixest)
+
+lm1 = feols(data = resume, call ~ race)
+summary(lm1)
+
+lm2 = feols(data = resume, call ~ race + education + yearsexp + military + computerskills + specialskills + female)
+summary(lm2)
+
+```
+
+2. **[8 Points]** Use `etable()` to produce a table of the two regression results. 
+    - Set the standard errors below
+    - Remove the standard error type row
+    - Use only the number of observation and $R^2$ fit statistics
+    - Rename the variables appropriately
+    
+    
+```{r etable}
+
+etable(lm1, lm2, se.row = F, se.below = T, dict = c(racew = 'White', education = 'Education', 
+                                                    yearsexp = 'Years of Experience', military = 'Military',
+                                                    computerskills = 'Computer Skill Level',
+                                                    specialskills = 'Special Skill Level',
+                                                    female = 'Female'),
+       fitstat = c('n', 'r2')) 
+```
+
+3. **[3 Points]** Compare the results from the t-test and the two regressions. Are effect estimates statistically different from each other at the 95% confidence level (i.e. is $\hat{\delta_1^1} \lessgtr \hat{\delta_1^2} \pm 1.96se(\hat{\delta_1^1})$)?
+
+The results from both the t-test and the regression results are very similar. The t-test told us that the ATE of being black on receiving a call back is -0.03203285 while both regressions similarly predict that being white increases your chances of receiving a call back by between 0.0314 and 0.0320. The effects are not statistically different from each other at a 5% level because both regressions predict a coefficient that is the opposite signed value, as the regression predicts the effect of being white compared to black on call back rates and the t-test checks for the effect of being black compared to being white on call back rates, that falls within the confidence interval predicted by the t-test.
+
+
+
+
+
+# **[15 Points]** Experimental Design and A/B Testing
+********************************************************************************
+
+Suppose you graduate from UIUC and enter the real world as a data scientist for [insert-airline-company-name-here] incorporated. 
+insert-airline incorporated has seatback entertainment touchscreens and runs an advertisement for in-flight purchases while passengers board the plane. 
+IACNH inc. has been using the same advertisement for the last decade, so highflier you wants to measure the causal effect of updating the ad.
+
+
+1. **[2 Points]** List at least two outcomes you could measure.
+average in-flight purchases 10 years ago vs
+average in-flgiht purchases after updating the ad
+
+
+
+2. **[4 Points]** Describe the specifics of treatment and control group randomized assignment, the hypothesis test for your experiment ($H_0$ and $H_a$), and the unit of observation.
+
+*Hint: SUTVA*.
+Treatment and control group would be randomly assgined by choosing a specific time and day from the past and measuring the number of in-flight purchases for those individuals and then choosing another day after the ad has been updated at the same time and measure the number of in-flight purchases for those individuals. We would like to choose two days, one before updating the ad and one after that are as similar as possible. The unit of observation would be individuals' purchases on the same day of the week at the same time.
+$H_0$ : $\beta_{updating-ad}$ = 0
+$H_a$ : $\beta_{updating-ad}$ $\neq$ 0
+
+
+
+3. **[3 Points]** Suppose you will run a t-test with equal control and treatment group sizes. What is the required sample size for running this experiment with a power of 0.8, significance level of 0.05, and an effect size of 0.5?
+
+*Hint: use the package* `pwr`.
+
+```{r min sample}
+library(pwr)
+pwr.t.test(d = 0.5,
+           sig.level = 0.05,
+           power = 0.8,
+           type = 'two.sample', # this is the default
+           alternative = 'two.sided') # this is the default
+
+```
+The required group size for both the control and treatment group would be 64 individuals each for a total of 128
+
+
+4. **[2 Points]** How does your required number of observations change if the effect size is 0.1?
+
+```{r min sample small effect}
+pwr.t.test(d = 0.1,
+           sig.level = 0.05,
+           power = 0.8,
+           type = 'two.sample', # this is the default
+           alternative = 'two.sided') # this is the default
+
+```
+
+The number of required observations increases significantly from 64 per group to 1571 per group
+
+5. **[4 Points]** Suppose you see a statistically significant increase in advertisement clicks, but you do not see any change in purchases. What could explain this outcome?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
