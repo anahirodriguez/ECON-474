@@ -1,7 +1,7 @@
 ---
 title: "HW1 Randomized Experiments (100 points)"
 author: "Anahi Rodriguez"
-date: "Collaborated with ____________"
+date: "Collaborated with group from office hours"
 output: 
   html_document:
     toc: yes
@@ -80,7 +80,7 @@ Yes, randomization ensures that individuals are randomly assigned either the con
 
 6. **[6 Points]** Provide one example for how internal validity may be violated and one example for how external validity may be violated, even under randomization of treated households at the participating utility companies.
 
-Internal validity could be violated ... External validity could be violated because perhaps the area that these utility companies provide energy for are significantly richer/poorer than the surrounding areas, leading them to already use more/less than other areas, irregardless of any knowledge of their neighbor's consumption levels.
+Internal validity could be violated because of spillovers from one neighbor with knowledge of their neighbor's consumption affecting the energy consumption of the neighbor's who didn't originally have those reports/knowledge presented to them.  External validity could be violated because perhaps the area that these utility companies provide energy reports for are significantly richer/poorer than the surrounding areas, leading them to already use more/less than other areas, irregardless of any knowledge of their neighbor's consumption levels.
 
 
 
@@ -110,7 +110,7 @@ Furthermore, indicate if they are observable or unobservable effects using eithe
 
 *Hint: there are multiple correct answers.*
 
-![](HW1 DAG.png)
+![](~/Desktop/Slide1.png)
 
 
 **[4 Points]** List all of the pathways in the DAG you have created using $\rightarrow$ and $\leftarrow$ between the varaibles. 
@@ -118,17 +118,25 @@ Indicate whether a path is **direct**, **mediated**, or a **backdoor**.
 If you DAG has any *collider* variables, list them as well.
 
 
-D = black sounding name
-A = Abilities/skills
-U = unobservable factors
-Y = callback
+D = black sounding name, 
+A = Abilities/skills, 
+U = unobservable factors, 
+Y = callback, 
+W = family's wealth, 
 
 D $\rightarrow$ Y - direct
+
 A $\rightarrow$ Y - direct
+
 U $\rightarrow$ Y - backdoor
+
 U $\rightarrow$ A - backdoor
+
 U $\rightarrow$ A $\rightarrow$ Y - mediated
 
+W $\rightarrow$ A $\rightarrow$ Y - mediated
+
+W $\rightarrow$ Y - direct 
 
 
 ## **[10 Points]** Potential Outcomes
@@ -156,7 +164,7 @@ $$
     
   c. **[2 Points]** Without randomization, do you think the heterogeneous treatment effects will be positive or negative? 
   
-  Negative, because 
+  Negative, because if individuals who are black where to have white sounding names, they would likely receive more call backs than if white individuals had white sounding names
 
 
 
@@ -220,7 +228,9 @@ bal_tab
 
 ```
 
-2. **[5 Points]** Which of the variables (if any) are statistical different at the 95% confidence level? If any of the variables are significantly different, does the treatment group or control group have a higher average value? the p-value for the variable 'computerskills' is statistically significant at the 5% level and tells us that there does exist some difference in the level of computer skills that black and white individuals have. Black individuals have a higher average value for computer skills compared to white individuals.
+2. **[5 Points]** Which of the variables (if any) are statistical different at the 95% confidence level? If any of the variables are significantly different, does the treatment group or control group have a higher average value? 
+
+The p-value for the variable 'computerskills' is statistically significant at the 5% level and tells us that there does exist some difference in the level of computer skills that black and white individuals have. Black individuals have a higher average value for computer skills compared to white individuals.
 
 
 
@@ -259,10 +269,14 @@ Using the `fixest` package
 ```{r regression}
 library(fixest)
 
-lm1 = feols(data = resume, call ~ race)
+resume = resume %>%
+  mutate(black = ifelse(race == 'b', 1, 0))
+
+lm1 = feols(data = resume, call ~ black, se = 'hetero')
 summary(lm1)
 
-lm2 = feols(data = resume, call ~ race + education + yearsexp + military + computerskills + specialskills + female)
+lm2 = feols(data = resume, call ~ black + education + yearsexp + military + computerskills + 
+              specialskills + female, se = 'hetero')
 summary(lm2)
 
 ```
@@ -276,17 +290,30 @@ summary(lm2)
     
 ```{r etable}
 
-etable(lm1, lm2, se.row = F, se.below = T, dict = c(racew = 'White', education = 'Education', 
+etable(lm1, lm2, se.row = F, se.below = T, dict = c(black = 'Black', education = 'Education', 
                                                     yearsexp = 'Years of Experience', military = 'Military',
                                                     computerskills = 'Computer Skill Level',
                                                     specialskills = 'Special Skill Level',
                                                     female = 'Female'),
        fitstat = c('n', 'r2')) 
+
+
+
+# confidence interval for simple refression
+lb1 = -0.0320 -  (1.96 * 0.0078)
+up1 = -0.0320 + (1.96 * 0.0078)
+print(paste(lb1, up1))
+
+# confidence interval for regression with controls added
+lb2 = -0.0314 - (1.96 * 0.0077)
+up2 = -0.0314 + (1.96 * 0.0077)
+print(paste(lb2, up2))
+
 ```
 
 3. **[3 Points]** Compare the results from the t-test and the two regressions. Are effect estimates statistically different from each other at the 95% confidence level (i.e. is $\hat{\delta_1^1} \lessgtr \hat{\delta_1^2} \pm 1.96se(\hat{\delta_1^1})$)?
 
-The results from both the t-test and the regression results are very similar. The t-test told us that the ATE of being black on receiving a call back is -0.03203285 while both regressions similarly predict that being white increases your chances of receiving a call back by between 0.0314 and 0.0320. The effects are not statistically different from each other at a 5% level because both regressions predict a coefficient that is the opposite signed value, as the regression predicts the effect of being white compared to black on call back rates and the t-test checks for the effect of being black compared to being white on call back rates, that falls within the confidence interval predicted by the t-test.
+The results from both the t-test and the regression results are very similar. The t-test told us that the ATE of being black on receiving a call back is -0.03203285 while both regressions similarly predict that being black decreases your chances of receiving a call with a estimated true population slope of being black between (-0.047288 -0.016712) and (-0.046492 -0.016308). The estimated ATE from the t-test is within both of these ranges, so we say that the results are not statistically different from each other at the 5% level.
 
 
 
@@ -297,19 +324,24 @@ The results from both the t-test and the regression results are very similar. Th
 
 Suppose you graduate from UIUC and enter the real world as a data scientist for [insert-airline-company-name-here] incorporated. 
 insert-airline incorporated has seatback entertainment touchscreens and runs an advertisement for in-flight purchases while passengers board the plane. 
-IACNH inc. has been using the same advertisement for the last decade, so highflier you wants to measure the causal effect of updating the ad.
+IACNH inc. has been using the same advertisement for the last decade, so highlighter you wants to measure the causal effect of updating the ad.
 
 
 1. **[2 Points]** List at least two outcomes you could measure.
-average in-flight purchases 10 years ago vs
-average in-flgiht purchases after updating the ad
+
+average in-flight purchases 10 years ago vs average in-flgiht purchases after updating the ad
+
+average ad clicks 10 years ago vs average ad clicks purchases after updating the ad
 
 
 
 2. **[4 Points]** Describe the specifics of treatment and control group randomized assignment, the hypothesis test for your experiment ($H_0$ and $H_a$), and the unit of observation.
 
 *Hint: SUTVA*.
-Treatment and control group would be randomly assgined by choosing a specific time and day from the past and measuring the number of in-flight purchases for those individuals and then choosing another day after the ad has been updated at the same time and measure the number of in-flight purchases for those individuals. We would like to choose two days, one before updating the ad and one after that are as similar as possible. The unit of observation would be individuals' purchases on the same day of the week at the same time.
+
+
+Treatment and control group would be randomly assigned by choosing a specific time and day from the past and measuring the number of in-flight purchases for those individuals and then choosing another day after the ad has been updated at the same time and measure the number of in-flight purchases for those individuals. We would like to choose two days, one before updating the ad and one after that are as similar as possible. Choosing two different days should also eliminate spillovers becuase individuals in the treatment group will not be able to see those ten years ago on their plane. The unit of observation would be individuals' purchases on the same day of the week at the same time.
+
 $H_0$ : $\beta_{updating-ad}$ = 0
 $H_a$ : $\beta_{updating-ad}$ $\neq$ 0
 
@@ -347,7 +379,7 @@ The number of required observations increases significantly from 64 per group to
 5. **[4 Points]** Suppose you see a statistically significant increase in advertisement clicks, but you do not see any change in purchases. What could explain this outcome?
 
 
-
+After having clicked the ad, the user decides that the product is too expensive
 
 
 

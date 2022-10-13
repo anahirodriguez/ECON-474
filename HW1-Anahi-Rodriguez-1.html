@@ -1585,7 +1585,7 @@ div.tocify {
 <h1 class="title toc-ignore">HW1 Randomized Experiments (100
 points)</h1>
 <h4 class="author">Anahi Rodriguez</h4>
-<h4 class="date">Collaborated with ____________</h4>
+<h4 class="date">Collaborated with group from office hours</h4>
 
 </div>
 
@@ -1670,9 +1670,12 @@ validity may be violated and one example for how external validity may
 be violated, even under randomization of treated households at the
 participating utility companies.</li>
 </ol>
-<p>Internal validity could be violated … External validity could be
-violated because perhaps the area that these utility companies provide
-energy for are significantly richer/poorer than the surrounding areas,
+<p>Internal validity could be violated because of spillovers from one
+neighbor with knowledge of their neighbor’s consumption affecting the
+energy consumption of the neighbor’s who didn’t originally have those
+reports/knowledge presented to them. External validity could be violated
+because perhaps the area that these utility companies provide energy
+reports for are significantly richer/poorer than the surrounding areas,
 leading them to already use more/less than other areas, irregardless of
 any knowledge of their neighbor’s consumption levels.</p>
 </div>
@@ -1711,16 +1714,22 @@ Indicate their effect using arrows. Furthermore, indicate if they are
 observable or unobservable effects using either solid- or dashed-line
 arrows.</p>
 <p><em>Hint: there are multiple correct answers.</em></p>
-<p><img src="HW1%20DAG.png" /></p>
+<p><img src="~/Desktop/Slide1.png" /></p>
 <p><strong>[4 Points]</strong> List all of the pathways in the DAG you
 have created using <span class="math inline">\(\rightarrow\)</span> and
 <span class="math inline">\(\leftarrow\)</span> between the varaibles.
 Indicate whether a path is <strong>direct</strong>,
 <strong>mediated</strong>, or a <strong>backdoor</strong>. If you DAG
 has any <em>collider</em> variables, list them as well.</p>
-<p>D = black sounding name R = race A = Abilities/skills U =
-unobservable factors Y = callback</p>
-<p>D <span class="math inline">\(\rightarrow\)</span> Y - direct A <span class="math inline">\(\rightarrow\)</span> Y - direct R <span class="math inline">\(\rightarrow\)</span> D <span class="math inline">\(\rightarrow\)</span> Y - mediated U <span class="math inline">\(rightarrow\)</span> Y - backdoor U <span class="math inline">\(rightarrow\)</span> A - backdoor R <span class="math inline">\(\righarrow\)</span> Y - backdoor? confounder?</p>
+<p>D = black sounding name, A = Abilities/skills, U = unobservable
+factors, Y = callback, W = family’s wealth,</p>
+<p>D <span class="math inline">\(\rightarrow\)</span> Y - direct</p>
+<p>A <span class="math inline">\(\rightarrow\)</span> Y - direct</p>
+<p>U <span class="math inline">\(\rightarrow\)</span> Y - backdoor</p>
+<p>U <span class="math inline">\(\rightarrow\)</span> A - backdoor</p>
+<p>U <span class="math inline">\(\rightarrow\)</span> A <span class="math inline">\(\rightarrow\)</span> Y - mediated</p>
+<p>W <span class="math inline">\(\rightarrow\)</span> A <span class="math inline">\(\rightarrow\)</span> Y - mediated</p>
+<p>W <span class="math inline">\(\rightarrow\)</span> Y - direct</p>
 </div>
 <div id="points-potential-outcomes" class="section level2" number="2.2">
 <h2><span class="header-section-number">2.2</span> <strong>[10
@@ -1753,12 +1762,17 @@ E[Y_i^1 | D = 1] - E[Y_i^0 | D = 0] &amp;= (E[Y^1] - E[Y^0]) \\
 (E[Y^0|D=0])]
 \end{align}
 \]</span> b. <strong>[2 Points]</strong> Without randomization, do you
-think the selection bias will be positive or negative? Negative, because
-it is the case that in a pre-treatment world, black individuals, who
-likely receive less callbacks from jobs than white individuals, are more
-likely to have black sounding names. c. <strong>[2 Points]</strong>
-Without randomization, do you think the heterogeneous treatment effects
-will be positive or negative? Negative, because</p>
+think the selection bias will be positive or negative?</p>
+<p>Negative, because it is the case that in a pre-treatment world, black
+individuals, who likely receive less callbacks from jobs than white
+individuals, are more likely to have black sounding names.</p>
+<ol start="3" style="list-style-type: lower-alpha">
+<li><strong>[2 Points]</strong> Without randomization, do you think the
+heterogeneous treatment effects will be positive or negative?</li>
+</ol>
+<p>Negative, because if individuals who are black where to have white
+sounding names, they would likely receive more call backs than if white
+individuals had white sounding names</p>
 </div>
 <div id="points-cleaning-the-data" class="section level2" number="2.3">
 <h2><span class="header-section-number">2.3</span> <strong>[5
@@ -1850,12 +1864,13 @@ difference, and p-value</em></li>
 <li><strong>[5 Points]</strong> Which of the variables (if any) are
 statistical different at the 95% confidence level? If any of the
 variables are significantly different, does the treatment group or
-control group have a higher average value? the p-value for the variable
-‘computerskills’ is statistically significant at the 5% level and tells
-us that there does exist some difference in the level of computer skills
-that black and white individuals have. Black individuals have a higher
-average value for computer skills compared to white individuals.</li>
+control group have a higher average value?</li>
 </ol>
+<p>The p-value for the variable ‘computerskills’ is statistically
+significant at the 5% level and tells us that there does exist some
+difference in the level of computer skills that black and white
+individuals have. Black individuals have a higher average value for
+computer skills compared to white individuals.</p>
 </div>
 <div id="points-treatment-effects" class="section level2" number="2.5">
 <h2><span class="header-section-number">2.5</span> <strong>[20
@@ -1906,31 +1921,35 @@ balance table</li>
 </ol>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fixest)</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>lm1 <span class="ot">=</span> <span class="fu">feols</span>(<span class="at">data =</span> resume, call <span class="sc">~</span> race)</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm1)</span></code></pre></div>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>resume <span class="ot">=</span> resume <span class="sc">%&gt;%</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">black =</span> <span class="fu">ifelse</span>(race <span class="sc">==</span> <span class="st">&#39;b&#39;</span>, <span class="dv">1</span>, <span class="dv">0</span>))</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>lm1 <span class="ot">=</span> <span class="fu">feols</span>(<span class="at">data =</span> resume, call <span class="sc">~</span> black, <span class="at">se =</span> <span class="st">&#39;hetero&#39;</span>)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm1)</span></code></pre></div>
 <pre><code>## OLS estimation, Dep. Var.: call
 ## Observations: 4,870 
-## Standard-errors: IID 
-##             Estimate Std. Error  t value   Pr(&gt;|t|)    
-## (Intercept) 0.064476   0.005505 11.71275  &lt; 2.2e-16 ***
-## racew       0.032033   0.007785  4.11471 3.9408e-05 ***
+## Standard-errors: Heteroskedasticity-robust 
+##              Estimate Std. Error  t value   Pr(&gt;|t|)    
+## (Intercept)  0.096509   0.005985 16.12437  &lt; 2.2e-16 ***
+## black       -0.032033   0.007785 -4.11471 3.9408e-05 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## RMSE: 0.271583   Adj. R2: 0.003261</code></pre>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>lm2 <span class="ot">=</span> <span class="fu">feols</span>(<span class="at">data =</span> resume, call <span class="sc">~</span> race <span class="sc">+</span> education <span class="sc">+</span> yearsexp <span class="sc">+</span> military <span class="sc">+</span> computerskills <span class="sc">+</span> specialskills <span class="sc">+</span> female)</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm2)</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>lm2 <span class="ot">=</span> <span class="fu">feols</span>(<span class="at">data =</span> resume, call <span class="sc">~</span> black <span class="sc">+</span> education <span class="sc">+</span> yearsexp <span class="sc">+</span> military <span class="sc">+</span> computerskills <span class="sc">+</span> </span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>              specialskills <span class="sc">+</span> female, <span class="at">se =</span> <span class="st">&#39;hetero&#39;</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm2)</span></code></pre></div>
 <pre><code>## OLS estimation, Dep. Var.: call
 ## Observations: 4,870 
-## Standard-errors: IID 
+## Standard-errors: Heteroskedasticity-robust 
 ##                 Estimate Std. Error   t value   Pr(&gt;|t|)    
-## (Intercept)     0.008644   0.024532  0.352372 7.2457e-01    
-## racew           0.031389   0.007727  4.062408 4.9334e-05 ***
-## education       0.005050   0.005497  0.918851 3.5822e-01    
-## yearsexp        0.003414   0.000791  4.316461 1.6170e-05 ***
-## military        0.006885   0.013642  0.504725 6.1378e-01    
-## computerskills -0.019514   0.010452 -1.867043 6.1956e-02 .  
-## specialskills   0.066585   0.008387  7.938676 2.5182e-15 ***
-## female          0.005927   0.009566  0.619543 5.3559e-01    
+## (Intercept)     0.040033   0.025464  1.572122 1.1599e-01    
+## black          -0.031389   0.007720 -4.066016 4.8580e-05 ***
+## education       0.005050   0.005556  0.909083 3.6335e-01    
+## yearsexp        0.003414   0.000894  3.819870 1.3519e-04 ***
+## military        0.006885   0.012538  0.549142 5.8293e-01    
+## computerskills -0.019514   0.011276 -1.730596 8.3587e-02 .  
+## specialskills   0.066585   0.009342  7.127701 1.1704e-12 ***
+## female          0.005927   0.009337  0.634769 5.2561e-01    
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## RMSE: 0.269219   Adj. R2: 0.019331</code></pre>
@@ -1944,7 +1963,7 @@ table of the two regression results.
 <li>Rename the variables appropriately</li>
 </ul></li>
 </ol>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">etable</span>(lm1, lm2, <span class="at">se.row =</span> F, <span class="at">se.below =</span> T, <span class="at">dict =</span> <span class="fu">c</span>(<span class="at">racew =</span> <span class="st">&#39;White&#39;</span>, <span class="at">education =</span> <span class="st">&#39;Education&#39;</span>, </span>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">etable</span>(lm1, lm2, <span class="at">se.row =</span> F, <span class="at">se.below =</span> T, <span class="at">dict =</span> <span class="fu">c</span>(<span class="at">black =</span> <span class="st">&#39;Black&#39;</span>, <span class="at">education =</span> <span class="st">&#39;Education&#39;</span>, </span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>                                                    <span class="at">yearsexp =</span> <span class="st">&#39;Years of Experience&#39;</span>, <span class="at">military =</span> <span class="st">&#39;Military&#39;</span>,</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>                                                    <span class="at">computerskills =</span> <span class="st">&#39;Computer Skill Level&#39;</span>,</span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>                                                    <span class="at">specialskills =</span> <span class="st">&#39;Special Skill Level&#39;</span>,</span>
@@ -1953,27 +1972,37 @@ table of the two regression results.
 <pre><code>##                             lm1        lm2
 ## Dependent Var.:            call       call
 ##                                           
-## (Intercept)           0.0645***  0.0086   
-##                      (0.0055)   (0.0245)  
-## White                 0.0320***  0.0314***
+## (Intercept)           0.0965***  0.0400   
+##                      (0.0060)   (0.0255)  
+## Black                -0.0320*** -0.0314***
 ##                      (0.0078)   (0.0077)  
 ## Education                        0.0050   
-##                                 (0.0055)  
+##                                 (0.0056)  
 ## Years of Experience              0.0034***
-##                                 (0.0008)  
+##                                 (0.0009)  
 ## Military                         0.0069   
-##                                 (0.0136)  
+##                                 (0.0125)  
 ## Computer Skill Level            -0.0195   
-##                                 (0.0104)  
+##                                 (0.0113)  
 ## Special Skill Level              0.0666***
-##                                 (0.0084)  
+##                                 (0.0093)  
 ## Female                           0.0059   
-##                                 (0.0096)  
+##                                 (0.0093)  
 ## ____________________ __________ __________
 ## Observations              4,870      4,870
 ## R2                      0.00347    0.02074
 ## ---
 ## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># confidence interval for simple refression</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>lb1 <span class="ot">=</span> <span class="sc">-</span><span class="fl">0.0320</span> <span class="sc">-</span>  (<span class="fl">1.96</span> <span class="sc">*</span> <span class="fl">0.0078</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>up1 <span class="ot">=</span> <span class="sc">-</span><span class="fl">0.0320</span> <span class="sc">+</span> (<span class="fl">1.96</span> <span class="sc">*</span> <span class="fl">0.0078</span>)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(lb1, up1))</span></code></pre></div>
+<pre><code>## [1] &quot;-0.047288 -0.016712&quot;</code></pre>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># confidence interval for regression with controls added</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>lb2 <span class="ot">=</span> <span class="sc">-</span><span class="fl">0.0314</span> <span class="sc">-</span> (<span class="fl">1.96</span> <span class="sc">*</span> <span class="fl">0.0077</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>up2 <span class="ot">=</span> <span class="sc">-</span><span class="fl">0.0314</span> <span class="sc">+</span> (<span class="fl">1.96</span> <span class="sc">*</span> <span class="fl">0.0077</span>)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(lb2, up2))</span></code></pre></div>
+<pre><code>## [1] &quot;-0.046492 -0.016308&quot;</code></pre>
 <ol start="3" style="list-style-type: decimal">
 <li><strong>[3 Points]</strong> Compare the results from the t-test and
 the two regressions. Are effect estimates statistically different from
@@ -1983,14 +2012,11 @@ each other at the 95% confidence level (i.e. is <span class="math inline">\(\ha
 <p>The results from both the t-test and the regression results are very
 similar. The t-test told us that the ATE of being black on receiving a
 call back is -0.03203285 while both regressions similarly predict that
-being white increases your chances of receiving a call back by between
-0.0314 and 0.0320. The effects are not statistically different from each
-other at a 5% level because both regressions predict a coefficient that
-is the opposite signed value, as the regression predicts the effect of
-being white compared to black on call back rates and the t-test checks
-for the effect of being black compared to being white on call back
-rates, that falls within the confidence interval predicted by the
-t-test.</p>
+being black decreases your chances of receiving a call with a estimated
+true population slope of being black between (-0.047288 -0.016712) and
+(-0.046492 -0.016308). The estimated ATE from the t-test is within both
+of these ranges, so we say that the results are not statistically
+different from each other at the 5% level.</p>
 </div>
 </div>
 </div>
@@ -2003,26 +2029,33 @@ scientist for [insert-airline-company-name-here] incorporated.
 insert-airline incorporated has seatback entertainment touchscreens and
 runs an advertisement for in-flight purchases while passengers board the
 plane. IACNH inc. has been using the same advertisement for the last
-decade, so highflier you wants to measure the causal effect of updating
-the ad.</p>
+decade, so highlighter you wants to measure the causal effect of
+updating the ad.</p>
 <ol style="list-style-type: decimal">
-<li><p><strong>[2 Points]</strong> List at least two outcomes you could
-measure. average in-flight purchases 10 years ago vs average in-flgiht
-purchases after updating the ad</p></li>
-<li><p><strong>[4 Points]</strong> Describe the specifics of treatment
-and control group randomized assignment, the hypothesis test for your
-experiment (<span class="math inline">\(H_0\)</span> and <span class="math inline">\(H_a\)</span>), and the unit of
-observation.</p></li>
+<li><strong>[2 Points]</strong> List at least two outcomes you could
+measure.</li>
 </ol>
-<p><em>Hint: SUTVA</em>. Treatment and control group would be randomly
-assgined by choosing a specific time and day from the past and measuring
-the number of in-flight purchases for those individuals and then
-choosing another day after the ad has been updated at the same time and
-measure the number of in-flight purchases for those individuals. We
-would like to choose two days, one before updating the ad and one after
-that are as similar as possible. The unit of observation would be
-individuals’ purchases on the same day of the week at the same time.
-<span class="math inline">\(H_0\)</span> : <span class="math inline">\(\beta_{updating-ad}\)</span> = 0 <span class="math inline">\(H_a\)</span> : <span class="math inline">\(\beta_{updating-ad}\)</span> <span class="math inline">\(\neq\)</span> 0</p>
+<p>average in-flight purchases 10 years ago vs average in-flgiht
+purchases after updating the ad</p>
+<p>average ad clicks 10 years ago vs average ad clicks purchases after
+updating the ad</p>
+<ol start="2" style="list-style-type: decimal">
+<li><strong>[4 Points]</strong> Describe the specifics of treatment and
+control group randomized assignment, the hypothesis test for your
+experiment (<span class="math inline">\(H_0\)</span> and <span class="math inline">\(H_a\)</span>), and the unit of observation.</li>
+</ol>
+<p><em>Hint: SUTVA</em>.</p>
+<p>Treatment and control group would be randomly assigned by choosing a
+specific time and day from the past and measuring the number of
+in-flight purchases for those individuals and then choosing another day
+after the ad has been updated at the same time and measure the number of
+in-flight purchases for those individuals. We would like to choose two
+days, one before updating the ad and one after that are as similar as
+possible. Choosing two different days should also eliminate spillovers
+becuase individuals in the treatment group will not be able to see those
+ten years ago on their plane. The unit of observation would be
+individuals’ purchases on the same day of the week at the same time.</p>
+<p><span class="math inline">\(H_0\)</span> : <span class="math inline">\(\beta_{updating-ad}\)</span> = 0 <span class="math inline">\(H_a\)</span> : <span class="math inline">\(\beta_{updating-ad}\)</span> <span class="math inline">\(\neq\)</span> 0</p>
 <ol start="3" style="list-style-type: decimal">
 <li><strong>[3 Points]</strong> Suppose you will run a t-test with equal
 control and treatment group sizes. What is the required sample size for
@@ -2030,12 +2063,12 @@ running this experiment with a power of 0.8, significance level of 0.05,
 and an effect size of 0.5?</li>
 </ol>
 <p><em>Hint: use the package</em> <code>pwr</code>.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pwr)</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">pwr.t.test</span>(<span class="at">d =</span> <span class="fl">0.5</span>,</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">sig.level =</span> <span class="fl">0.05</span>,</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">power =</span> <span class="fl">0.8</span>,</span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">type =</span> <span class="st">&#39;two.sample&#39;</span>, <span class="co"># this is the default</span></span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">alternative =</span> <span class="st">&#39;two.sided&#39;</span>) <span class="co"># this is the default</span></span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pwr)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">pwr.t.test</span>(<span class="at">d =</span> <span class="fl">0.5</span>,</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">sig.level =</span> <span class="fl">0.05</span>,</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">power =</span> <span class="fl">0.8</span>,</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">type =</span> <span class="st">&#39;two.sample&#39;</span>, <span class="co"># this is the default</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">alternative =</span> <span class="st">&#39;two.sided&#39;</span>) <span class="co"># this is the default</span></span></code></pre></div>
 <pre><code>## 
 ##      Two-sample t test power calculation 
 ## 
@@ -2052,11 +2085,11 @@ would be 64 individuals each for a total of 128</p>
 <li><strong>[2 Points]</strong> How does your required number of
 observations change if the effect size is 0.1?</li>
 </ol>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pwr.t.test</span>(<span class="at">d =</span> <span class="fl">0.1</span>,</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">sig.level =</span> <span class="fl">0.05</span>,</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">power =</span> <span class="fl">0.8</span>,</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">type =</span> <span class="st">&#39;two.sample&#39;</span>, <span class="co"># this is the default</span></span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">alternative =</span> <span class="st">&#39;two.sided&#39;</span>) <span class="co"># this is the default</span></span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pwr.t.test</span>(<span class="at">d =</span> <span class="fl">0.1</span>,</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">sig.level =</span> <span class="fl">0.05</span>,</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">power =</span> <span class="fl">0.8</span>,</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">type =</span> <span class="st">&#39;two.sample&#39;</span>, <span class="co"># this is the default</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">alternative =</span> <span class="st">&#39;two.sided&#39;</span>) <span class="co"># this is the default</span></span></code></pre></div>
 <pre><code>## 
 ##      Two-sample t test power calculation 
 ## 
@@ -2074,6 +2107,8 @@ per group to 1571 per group</p>
 significant increase in advertisement clicks, but you do not see any
 change in purchases. What could explain this outcome?</li>
 </ol>
+<p>After having clicked the ad, the user decides that the product is too
+expensive</p>
 </div>
 
 
