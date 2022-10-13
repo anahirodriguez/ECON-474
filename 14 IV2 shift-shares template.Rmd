@@ -285,6 +285,6 @@ coef(fit_rf)/coef(fit_fs)
 
 
 # need a strong estimate for first stage or else hige number on either side of infinity
-  # this is confirmed by the large f - stat that we saw in the fs
+  # this is confirmed by the large f - stat that we saw in the first stage
 
 ```
