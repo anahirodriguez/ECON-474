@@ -1,6 +1,6 @@
 ---
 title: "15 IV3 Local Average Treatment Effects"
-subtitle: "ECON 474 Econometrics of Policy Evaluation"
+fgroupsubtitle: "ECON 474 Econometrics of Policy Evaluation"
 output: 
   html_document:
     toc: yes
