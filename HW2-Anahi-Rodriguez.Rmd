@@ -1,7 +1,7 @@
 ---
 title: "HW2 Instrumental Variables (100 points)"
 author: "FirstName LastName"
-date: "Collaborated with ____________"
+date: "Collaborated with Elina and Nicole"
 output: 
   html_document:
     toc: yes
@@ -206,16 +206,12 @@ Loading the data:
 
 
 ```{r data}
-df = fread("~/Desktop/data econ 474/usa_00001.csv")
+df = fread("~/Desktop/data econ 474/usa_00003.csv")
 
 names(df) = names(df) %>% tolower
 
-df = df %>%
-  select(c(year, region, bpl, metro, sex, age, birthqtr, birthyr, 
-           marst, race, educ, wkswork1, incwage, gq, educd)) # check the variables used here
 
 dim(df)
-
 ```
 
 
@@ -258,34 +254,35 @@ Then print the `head()` of your cleaned data.
 
 
 ```{r cleaning}
-dim(df %>%
+df = df %>%
   filter(sex == 1,
          race %in% c(1,2),
          birthyr %in% 1930:1959,
-         bpl %in% c(1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 15:42, 44:51, 53:56),
+         !bpl %in% c(011,090:999),
          gq == 1,
-         wkswork1 >= 1,
-         educd != 1) %>%
+         wkswork1 >= 01,
+         educ != 00,
+         !is.na(incwage),
+         !incwage %in% c(999998, 999999),
+         incwage > 0) %>%
   mutate(wkly_wage = incwage/wkswork1,
          black = ifelse(race == 2, 1, 0),
          married = ifelse(marst %in% c(1,2), 1, 0),
-         cental_msa = ifelse(metro %in% c(2,4), 1, 0),
-         birthdate = case_when(birthqtr == 1 ~ paste(birthyr),
-                               birthqtr == 2 ~ paste(birthyr, '.25'),
-                               birthqtr == 3 ~ paste(birthyr, '.5'),
-                               birthqtr == 4 ~ paste(birthyr, '.75')),
+         central_msa = ifelse(metro == 2, 1, 0),
+         birthdate = birthyr + (birthqtr - 1)/4,
          age_qtr = case_when(birthqtr == 1 ~ paste(age),
-                               birthqtr == 2 ~ paste(age, '.25'),
-                               birthqtr == 3 ~ paste(age, '.5'),
-                               birthqtr == 4 ~ paste(age, '.75')),
+                               birthqtr == 2 ~ paste(age + .25),
+                               birthqtr == 3 ~ paste(age + .5),
+                               birthqtr == 4 ~ paste(age + .75)),
          yos = case_when(educd == 2 ~ 0, educd == 14 ~ 1, educd == 15 ~ 2,
                          educd == 16 ~ 3, educd == 17 ~ 4, educd == 22 ~ 5, 
                          educd == 23 ~ 6, educd == 25 ~ 7, educd == 26 ~ 8,
                          educd == 30 ~ 9, educd == 40 ~ 10, educd == 50 ~ 11,
                          educd == 60 ~ 12, educd == 70 ~ 13, educd == 80 ~ 14,
                          educd == 90 ~ 15, educd == 100 ~ 16, educd == 110 ~ 17,
-                         educd == 111 ~ 18, educd == 112 ~ 19, educd == 113 ~ 20)))
-                          
+                         educd == 111 ~ 18, educd == 112 ~ 19, educd == 113 ~ 20))
+
+dim(df)
 
 ```
 
@@ -321,6 +318,10 @@ So, create a new object using your data frame by using
 
 **[3 Points]**
 ```{r df plot}
+plot_object = df %>%
+  group_by(birthdate, birthqtr, birthyr) %>%
+  summarise(m_yos = mean(yos, na.rm = TRUE),
+            m_l_wkly_wage = mean(log(wkly_wage)))
 
 ```
 
@@ -347,16 +348,82 @@ To label the quarter of birth numbers use `geom_text()`
 
 
 ```{r figure 1}
+figure_1 = 
+  ggplot(data = plot_object, 
+                  aes(x = as.numeric(birthdate), y = m_yos)) +
+  geom_line() + 
+  geom_point(shape = 18, size = 2) +
+  geom_text(aes(label = birthqtr), vjust = 3) +
+  labs(x = 'Year of Birth', y = 'Years of Completed Education') +
+  xlim(c(1930, 1940)) +
+  ylim(c(12.2, 13.2)) +
+  ggtitle("Figure I\nYears of Eduction and Season of Birth\n1980 Census",
+          subtitle = "Note. Quarter of birth is listed below each observation") +
+  theme(plot.title = element_text(vjust = -100, hjust = 0.5),
+        plot.subtitle = element_text(vjust = -115, hjust = 0.5),
+        plot.margin = margin(t = 0,
+                             b = 3, 
+                             r = 0.5, 
+                             l = .5,
+                             "cm"),
+        panel.background = element_blank(),
+        panel.border = element_rect(color = 'black', fill = NA))
+
+figure_1
+
+
 
 ```
 
 
 ```{r figure 2}
+figure_2 = ggplot(data = plot_object, 
+                  aes(x = as.numeric(birthdate), y = m_yos)) +
+  geom_line() + 
+  geom_point(shape = 18, size = 2.5) +
+  geom_text(aes(label = birthqtr), vjust = 1.75) +
+  labs(x = 'Year of Birth', y = 'Years of Completed Education') +
+  xlim(c(1940, 1950)) +
+  ylim(c(13, 13.9)) +
+  ggtitle("Figure II\nYears of Eduction and Season of Birth\n1980 Census\nNote. Quarter of birth is listed below each observation") +
+  theme(plot.title = element_text(vjust = -100, hjust = 0.5),
+        plot.margin = margin(t = 0,
+                             b = 3.5, 
+                             r = 0.5, 
+                             l = .5,
+                             "cm"),
+        panel.background = element_blank(),
+        panel.border = element_rect(color = 'black', fill = NA)) 
+
+figure_2
+
 
 ```
 
 
 ```{r figure 3}
+figure_3 = ggplot(data = plot_object, 
+                  aes(x = as.numeric(birthdate), y = m_yos)) +
+  geom_line() + 
+  geom_point(shape = 18, size = 2.5) +
+  geom_text(aes(label = birthqtr), vjust = 2) +
+  xlim(c(1950, 1960)) +
+  ylim(c(12, 13.8)) +
+  labs(x = 'Year of Birth', y = 'Years of Completed Education') +
+  ggtitle("Figure III\nYears of Eduction and Season of Birth\n1980 Census",
+          subtitle = 'Note. Quarter of birth is listed below each observation') +
+  theme(plot.title = element_text(vjust = -100, hjust = 0.5),
+        plot.subtitle = element_text(vjust = -120, hjust = 0.5),
+        plot.margin = margin(t = 0,
+                             b = 3, 
+                             r = 0.5, 
+                             l = .5,
+                             "cm"),
+        panel.background = element_blank(),
+        panel.border = element_rect(color = 'black', fill = NA))
+  
+figure_3
+
 
 ```
 
@@ -381,6 +448,31 @@ Note:
 - You do not need distinguish the quarter 1 shape/color (but you can if you'd like)
 
 ```{r figure 5}
+
+
+figure_5 = ggplot(data = plot_object, 
+                  aes(x = as.numeric(birthdate), y = m_l_wkly_wage)) +
+  geom_line() + 
+  geom_point(color = "black", size = 2.25, shape = 18) +
+  geom_point(size = 1.8, aes(color = factor(birthqtr)), shape = 18, show.legend = F) +
+  scale_color_manual(values = c('1' = 'black', '2' = 'white', 
+                                '3' = 'white', '4' = 'white')) +
+  geom_text(aes(label = birthqtr), vjust = 3) +
+  xlim(c(1930, 1950)) +
+  ylim(c(5.6, 5.9)) +
+  labs(x = 'Year of Birth', y = 'Log Weekly Earnings') +
+  ggtitle("Figure V\nMean Log Weekly Wage, by Quarter of Birth\nAll Men Born 1930-1949; 1980 Census") +
+  theme(plot.title = element_text(vjust = -100, hjust = 0.5),
+        plot.margin = margin(t = 0,
+                             b = 3, 
+                             r = 0.5, 
+                             l = .5,
+                             "cm"),
+        panel.background = element_blank(),
+        panel.border = element_rect(color = 'black', fill = NA))
+  
+
+figure_5
 
 ```
 
@@ -416,6 +508,7 @@ Add a variable `iv1` using either `ifelse()` or `case_when()` that is a **string
 For example, the `iv1` could take on the values `"q1", "not q1"`.
 
 ```{r iv1}
+plot_object$iv1 = ifelse(plot_object$birthqtr == 1, 'q1', 'not q1')
 
 ```
 
@@ -426,6 +519,16 @@ Estimate the appropriate $E[Y|Z=1]$ and $E[Y|Z=0]$ and save them as `y_z1` and `
 Show that you get equivalent values if you run a regression with `lm()` on `iv1` without an intercept term.
 
 ```{r r1 c12}
+y_z1 = mean(plot_object$m_l_wkly_wage[plot_object$iv1 == 'q1'])
+y_z1
+
+y_z0 = mean(plot_object$m_l_wkly_wage[plot_object$iv1 == 'not q1'])
+y_z0
+
+y_z1 - y_z0 # numerator for wald estimate
+
+lm(m_l_wkly_wage ~ iv1 + 0,
+   data = plot_object)
 
 ```
 
@@ -435,6 +538,11 @@ Perform a `t.test()` using a formula and print the `t.test()$std.err`.
 Show this is the same standard error from a reduced form regression using `lm()` ensuring the baseline value of $Z=0$.
 
 ```{r r1 c3}
+t.test(plot_object$m_l_wkly_wage ~ plot_object$iv1)$stderr
+
+
+summary(lm(data = plot_object, m_l_wkly_wage ~ iv1))
+
 
 ```
 
@@ -444,13 +552,32 @@ Perform the same steps for row 2 as you did for row 1, but save objects `d_z1` a
 
 ```{r r2}
 
+d_z1 = mean(plot_object$m_yos[plot_object$iv1 == 'q1'])
+d_z1
+
+d_z0 = mean(plot_object$m_yos[plot_object$iv1 == 'not q1'])
+d_z0
+
+d_z1 - d_z0 # denominator for wald estimate
+lm(m_yos ~ iv1 + 0,
+   data = plot_object)
+
+t.test(plot_object$m_yos ~ plot_object$iv1)$stderr
+summary(lm(m_yos ~ iv1, data = plot_object))
+
+
+
+
 ```
 
 #### **[2 Points]** Wald estimate
 
 Using Table III as your guide, use `y_z1`, `y_z0`, `d_z1`, `d_z0` to obtain the Wald estimate.
 
+
+
 ```{r wald}
+(y_z1 - y_z0)/(d_z1 - d_z0)
 
 ```
 
@@ -459,6 +586,13 @@ Show that this is the same value that you get when using 2SLS via `feols()`.
 *Hint: the only exogenous variable you have is the intercept* `1`.
 
 ```{r tab3 2sls}
+
+#`feols(outcome ~ exogenous variables | endogenous variables ~ instrumental variables)`
+
+fit_2sls = feols(data = plot_object,
+                 m_l_wkly_wage ~ 1 | m_yos ~ iv1,
+                 se = 'hetero')
+summary(fit_2sls)
 
 ```
 
@@ -487,6 +621,13 @@ Then create
 **[2 Points]**
 
 ```{r iv}
+df$iv1 = ifelse(df$birthqtr == 1, 'q1', 'not q1')
+
+table_5 = df %>%
+  subset(birthyr %in% 1930:1939) %>%
+  mutate(iv2 = as.character(birthqtr),
+         iv3 = ifelse(iv1 == 'q1', 'Q1', paste(birthqtr, birthyr)),
+         iv4 = ifelse(iv1 == 'q1', 'Q1', paste(birthqtr, bpl)))
 
 ```
 
@@ -495,6 +636,11 @@ Within `across()`, use specify argument 2 to be `n_distinct`.
 You should get 2, 4, 31, 151.
 
 ```{r iv check}
+
+length(unique(table_5$iv1))
+length(unique(table_5$iv2))
+length(unique(table_5$iv3))
+length(unique(table_5$iv4))
 
 ```
 
@@ -516,6 +662,24 @@ For the structural equation `feols()` `formula`s, use the format `y ~ x1 + ... |
 
 ```{r over-identification}
 
+
+fit_rf = feols(data = table_5,
+               log(wkly_wage) ~ yos + black + married + central_msa | birthyr + region,
+               se = 'hetero')
+
+fit_2sls1 = feols(data = table_5,
+                  log(wkly_wage) ~ black + married +central_msa | birthyr + region | yos ~ iv1,
+                  se = 'hetero')
+fit_2sls2 = feols(data = table_5,
+                  log(wkly_wage) ~ black + married + central_msa | birthyr + region | yos ~ iv2,
+                  se = 'hetero')
+fit_2sls3 = feols(data = table_5,
+                  log(wkly_wage) ~ black + married + central_msa | birthyr + region | yos ~ iv3,
+                  se = 'hetero')
+fit_2sls4 = feols(data = table_5,
+                  log(wkly_wage) ~ black + married + central_msa | birthyr + region | yos ~ iv3 + iv4,
+                  se = 'hetero')
+
 ```
 
 
@@ -529,6 +693,15 @@ For the structural equation `feols()` `formula`s, use the format `y ~ x1 + ... |
 
 
 ```{r table 5 ish}
+etable(fit_rf, fit_2sls, fit_2sls1, fit_2sls2, fit_2sls3, fit_2sls4,
+       se.below = T,
+       stage = 1:2,
+       keep = c('yos', 'race', 'central_msa'),
+       order = 'yos',
+       fitstat = c('r2', 'f', 'sargan', 'sargan.p'))
+
+#`feols(outcome ~ exogenous variables | endogenous variables ~ instrumental variables)`
+
 
 ```
 
