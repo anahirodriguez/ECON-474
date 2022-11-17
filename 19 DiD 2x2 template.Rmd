@@ -80,7 +80,11 @@ When creating a new object, we will also create the two variables that we need t
 
 
 ```{r df reg}
-
+df_reg = df_plot %>%
+  filter(district != 'counterfactual') %>%
+  mutate(treat = (district == 'x6th.district') * 1,
+         post = (year > 1930) * 1)
+df_reg
 ```
 
 Time to run the 2x2 regression!
@@ -91,6 +95,12 @@ Is this a problem?
 
 
 ```{r 2x2}
+fit1 = feols(n_banks ~ treat * post, data = df_reg, se = 'hetero')
+fit2 = feols(n_banks ~ treat * post | district, data = df_reg) # fixed effecgt of district
+
+etable(fit1, fit2,
+       se.below = T)
+
 
 ```
 
@@ -100,7 +110,10 @@ The short answer is averages.
 Try to think about how the plotted averages map into the potential outcomes framework.
 
 ```{r 2x2 plot}
-
+ggplot(df_reg, aes(x = year, y = n_banks, color = district)) +
+  geom_line() + 
+  labs(x = 'Year', y = 'Number of Banks in Business') +
+  geom_smooth(method = 'lm', se = F, formula = y ~ I(x > 1930), linetype = 'dashed')
 ```
 
 
