@@ -136,6 +136,9 @@ Now we can use the names of the vector we just created to extract the year.
 Since we are at it, we might as well add the zero values for 1990.
 
 ```{r 1990}
+df_event = rbind(df_event, c(0, 0, 0, 1990)) %>%
+  arrange(year)
+df_event
 
 ```
 
@@ -146,7 +149,19 @@ Note, however, that it requires using double `\\` because the R strings are look
 The double backslash says "no, I really want a backslash here."
 
 ```{r event study}
-
+ggplot(df_event, aes(x = year, y = delta_k, ymin = `2.5 %`, ymax = `97.5 %`)) +
+  geom_point(size = 4) +
+  geom_line(linetype = 'dashed', size = 1.4) +
+  geom_errorbar(size = 1.4) +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_rect(xmin = 1995.25, xmax = 2000.25, 
+            ymin = -Inf, ymax = Inf, alpha = 0.05, 
+            aes(fill = "Dotcom\nBubble")) +
+  scale_fill_manual(values = 'black') +
+  labs(x = 'Year', y = TeX('$\\delta_k$'), title = '90-10 Total Inocme Ratio',
+       fill = '') +
+  theme_minimal() +
+  theme(text = element_text(size = 20)) # must go after appearance themes
 ```
 
 
@@ -159,18 +174,30 @@ To save ourselves from making mistakes, we will create a regression specific dat
 We will also use this data to create a new variable `post` to indicate being in the post treatment period(s).
 
 ```{r df_reg}
+df_reg = df %>%
+  filter(year %in% c(1990,2000)) %>%
+  mutate(post = (year > 1990) * 1)
 
 ```
 
 Time to run the differential exposure difference-in-differences!
 
 ```{r diff e diff in diff}
-
+fit_main = feols(q90_q10_tot ~ post * log(comp_90) + log(pop_90) +
+                    ba_share_90 + log(med_house_value_90), 
+                  data = df_reg,  se = 'hetero')
+etable(fit_main, se.below = T)
 ```
 The main result says that a 1% increase in exposure to the Dotcom bubble increased the 90-10 ratio by about 0.77. 
 To find out, let's take a look at the average pre-treatment level of income inequality.
 
 ```{r effect size}
+pre_90_10 = df_reg %>%
+  filter(year == 1990) %>%
+  pull(q90_q10_tot) %>%
+  mean
+
+coef(fit_main)[7]/pre_90_10
 
 ```
 
@@ -192,7 +219,10 @@ It could be the case that the growth in income inequality is purely due to retur
 We can check this by using finance employment as a placebo.
 
 ```{r finance placebo}
-
+feols(q90_q10_tot ~ post * log(fin_share_90) + log(pop_90) +
+                    ba_share_90 + log(med_house_value_90), 
+                  data = df_reg,  se = 'hetero') %>%
+  etable()
 ```
 
 
@@ -208,7 +238,11 @@ Simply remove the San Jose MSA from the regression.
 To figure out which code corresponds to the San Jose MSA, let's look at the documentation for the [`METAREA`](https://usa.ipums.org/usa-action/variables/METAREA#codes_section) variable.
 
 ```{r no way San Jose}
-
+feols(q90_q10_tot ~ post * log(comp_90) + log(pop_90) +
+                    ba_share_90 + log(med_house_value_90), 
+                  data = df_reg,  se = 'hetero',
+      subset = ~metarea != 740) %>%
+  etable()
 ```
 
 
@@ -222,7 +256,17 @@ The final robustness check we will do is to provide show that we are not simply 
 We will need to go back to the full data to demonstrate this.
 
 ```{r df_reg_lag}
-
+df_reg_lag = df %>%
+  arrange(metarea, year) %>%
+  group_by(metarea) %>%
+  mutate(q90_q10_tot_lag = lag(q90_q10_tot),
+         post = (year > 1990) * 1 ) %>%
+  filter(year %in% c(1990, 2000))
+ 
+feols(q90_q10_tot_lag ~ post * log(comp_90) + log(pop_90) +
+                    ba_share_90 + log(med_house_value_90), 
+                  data = df_reg_lag,  se = 'hetero') %>%
+  etable() 
 ```
 
 
