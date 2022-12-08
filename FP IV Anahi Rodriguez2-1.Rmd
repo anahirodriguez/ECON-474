@@ -77,11 +77,14 @@ The mapping of the variables in the regression to the data are:
 **[5 Points]** Load in the data and any necessary packages:
 
 ```{r loading please wait}
+library(tidyverse)
+library(fixest)
+library(haven)
+
 setwd("~/Desktop/data econ 474")
 df = read_dta("20081371_Dataset.dta")
 
-library(tidyverse)
-library(fixest)
+
 ```
 
 
@@ -152,7 +155,19 @@ Label the axes and title appropriately.
 
 
 ```{r fig3b}
-
-
+ggplot(data = subset(df, cleanpd1500 ==1),
+       aes(x = pc_lnar_lnas, y = ln_pd1500 )) +
+  geom_point(aes(shape = continent)) +
+  scale_shape_manual(values = c(16, 1, 22, 18, 24)) +
+  geom_smooth(method = 'lm', se = F, color = 'black') +
+  geom_text(aes(label = code ), size = 2, vjust = 2) + 
+  labs(title = 'Panel B. The Partial Effect of Land Productivity on Population 
+       Density in 1500 CE', x = 'Log years since transition',
+       y = 'Log Population density in 1500 CE') +
+  theme_bw() +
+  scale_x_continuous(breaks = NULL) + 
+theme(legend.position = c(.325,.92),
+        legend.direction = 'horizontal',
+      legend.title = element_blank())
 
 ```
