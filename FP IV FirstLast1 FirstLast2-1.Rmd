@@ -1,0 +1,158 @@
+---
+title: "FP - IV: Ashraf and Galor (2011) [100 Points]"
+subtitle: "ECON 474 Econometrics of Policy Evaluation"
+author: "Anahi Rodriguez"
+output: 
+  html_document:
+    toc: yes
+    toc_float: true
+    number_sections: true
+    theme: cerulean
+    highlight: pygments
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+# **[30 Points]** Research Design
+********************************************************************************
+
+This section is centered around understanding the research design for this paper.
+
+## **[10 Points]** Research Question
+************************************************************
+
+What is the research question of this paper?
+
+*Hint: economists are notorious for not explicitly stating their research question in their papers.*
+
+**Your answer:**
+Asks if the Malthusian theory is true; Do improvements in technology and higher land productivity affect population density or the standard of living
+
+
+
+## **[20 Points]** Empirical Design
+************************************************************
+
+1. What is the casual technique of this paper, and why is it chosen?
+
+**Your answer:**
+Instrumental Variables and it is chosen becuase there is exogenous sources of variation across the country in technological advancements and land prductivity
+
+
+2. Name one possible threat to identification.
+
+**Your answer:**
+It could be that the technological advancements of one area spillover into those sorroudning areas, violating the SUTVA assumption
+
+
+# **[70 Points]**  Replication
+********************************************************************************
+
+The paper estimates the regression:
+
+$$ln(P_{i,t}) = \alpha_{0,t} + \alpha_{1,t} \widehat{ln(T_i)} + \alpha_{2,t} ln(X_i) + \alpha_{3,t} \Gamma_i + \alpha_{4,t} D_i + \epsilon_{i,t}$$
+$$ln(T_i) = \rho_{0,t} + \rho_{1,t} Z_i + \rho_{2,t} ln(X_i) + \rho_{3,t} \Gamma_i + \rho_{4,t} D_i + \xi_{i,t}$$
+
+separately for different years $t$, where $i$ is the modern day country.
+
+The mapping of the variables in the regression to the data are:
+
+- $P_{i,1500}$ - `ln_pd1500` (population density in 1500 CE)
+- $T_i$ - `ln_yst` (years since neolithic period)
+- $X_i$ - `pc_lnar_lnas` (land productivity)
+- $\Gamma_i$ - geographical controls for country $i$
+    - `ln_abs_lat` - absolute latitude
+    - `distcr1000` - mean distance to nearest coast or river
+    - `land100cr` - percentage of land within 100 km of coast or river
+- $D_i$ - `continent`
+- $Z_i$ - instruments
+    - `animals` - number of domesticable animals species
+    - `plants` - number of domesticable plants species
+
+
+**[5 Points]** Load in the data and any necessary packages:
+
+```{r loading please wait}
+setwd("~/Desktop/data econ 474")
+df = read_dta("20081371_Dataset.dta")
+
+library(tidyverse)
+library(fixest)
+```
+
+
+## **[30 Points]** Table 2: Population Density in 1500 CE
+************************************************************
+
+Here you are going to somewhat replicate a modified table 2.
+Specifically, you are going to replicate columns 5 and 6 and add the reduced form estimates.
+There is a typo in the paper's code, so your estimates will be slightly different but the number of observations will be the same.
+For some guidance, the OLS estimate on `ln_yst` should be 1.375, the RF estimate on `animals` should be 0.0659, and the 2SLS estimate on `ln_yst` should be 2.051.
+
+For each regression, use the subset of the data where `cleanhibbs == 1` and use heteroskedastic robust standard errors.
+
+Put all three regressions into an `etable()`.
+Rename all variables appropriately (recall you cannot rename the cluster variable).
+Specify the `fitstat` argument to match.
+
+```{r tab2}
+#`feols(outcome ~ exogenous variables | endogenous variables ~ instrumental variables)`
+
+
+
+table_2_col5 = feols(ln_pd1500 ~ ln_yst + pc_lnar_lnas + ln_abslat + distcr1000 + land100cr | continent,
+                data = subset(df, cleanhibbs ==1),
+                se = 'hetero')
+
+
+table_2_col6 = feols(ln_pd1500 ~  pc_lnar_lnas + ln_abslat + distcr1000 +
+                 land100cr  | continent | ln_yst ~ animals + plants,
+                data = subset(df, cleanhibbs ==1),
+                se = 'hetero')
+
+
+reduced_form_fit = feols(ln_pd1500 ~ animals + plants + ln_yst + pc_lnar_lnas + ln_abslat + distcr1000 + land100cr | continent,
+                         data = subset(df, cleanhibbs ==1),
+                         se = 'hetero')
+
+
+tab_dict = c(ln_yst = "Log years since Neolithic transition",
+             pc_lnar_lnas = 'Log land productivity',
+             ln_abslat = 'Log absolute latitude',
+             distcr1000 = 'Mean distance to nearest coast or river',
+             land100cr = 'Percentage of land within 100 km of coast or river',
+             'animals' = 'Animals',
+             'plants' = 'Plants')
+
+
+etable(table_2_col5, table_2_col6, reduced_form_fit,
+       fitstat = c('r2', 'n'),
+       se.below = T,
+       dict = tab_dict)
+
+
+
+
+```
+
+
+## **[35 Points]** Frisch-Waugh-Lovell - Figure 3b
+************************************************************
+
+
+Use the Frisch-Waugh-Lovell theorem to plot the partial relationship between `ln_pd1500` and `pc_lnar_lnas` with `ggplot()` using the OLS regression from above, but with the subset of the data `cleanpd1500 == 1`.
+Set the scatter plot point type to represent the continents, and use `geom_text()` to label all of the points with country `code`s.
+Label the axes and title appropriately. 
+
+*Hint: get the variables* `code` *and* `continent` *from the matching subset of the original data set.*
+
+
+```{r fig3b}
+
+
+
+```
